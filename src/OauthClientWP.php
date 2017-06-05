@@ -396,6 +396,13 @@ class OauthClientWP
 		return implode('&', $parsed);
 	}
 
+	/**
+	 * Get an user token
+	 *
+	 * @method getToken
+	 *
+	 * @return array
+	 */
 	public function getToken()
 	{
 		$token = $this->tokenStorage();
