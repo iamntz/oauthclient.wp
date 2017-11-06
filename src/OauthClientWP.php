@@ -461,6 +461,7 @@ class OauthClientWP
 		}
 
 		$args['headers'] = $headers;
+		$args['timeout'] = 60000;
 
 		$request = wp_remote_request($url, $args);
 
