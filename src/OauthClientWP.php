@@ -34,6 +34,7 @@ class OauthClientWP
 		$this->url = $options['url'];
 		$this->key = $options['key'];
 		$this->secret = $options['secret'];
+		$this->userID = $options['userID'] ?? get_current_user_id();
 	}
 
 	/**
@@ -127,8 +128,7 @@ class OauthClientWP
 	 */
 	private function transient($action, $key, $value = null)
 	{
-		$userID = get_current_user_id();
-		$key = "{$this->namespace}_oauth_token_{$userID}" . $key;
+		$key = "{$this->namespace}_oauth_token_{$this->userID}" . $key;
 
 		switch ($action) {
 			case 'get':
@@ -161,20 +161,19 @@ class OauthClientWP
 	 */
 	private function tokenStorage($action = 'get', $value = null)
 	{
-		$userID = get_current_user_id();
-
 		$key = "{$this->namespace}_oauth_token";
+
 		switch ($action) {
 			case 'get':
-				return get_user_meta($userID, $key, true);
+				return get_user_meta($this->userID, $key, true);
 				break;
 
 			case 'set':
-				return update_user_meta($userID, $key, $value);
+				return update_user_meta($this->userID, $key, $value);
 				break;
 
 			case 'clear':
-				return delete_user_meta($userID, $key);
+				return delete_user_meta($this->userID, $key);
 				break;
 
 			default:
