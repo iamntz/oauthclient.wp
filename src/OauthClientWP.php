@@ -173,6 +173,10 @@ class OauthClientWP
 				return update_user_meta($userID, $key, $value);
 				break;
 
+			case 'clear':
+				return delete_user_meta($userID, $key);
+				break;
+
 			default:
 				throw new \Exception("Invalid action", 1);
 				break;
@@ -407,27 +411,34 @@ class OauthClientWP
 	{
 		$token = $this->tokenStorage();
 
-		$return = [];
 		if ($token && isset($token['last_check'])) {
-			$return = [
-				'status' => 'ok',
-				'token' => $token,
-			];
-
 			if (time() - $token['last_check'] >= DAY_IN_SECONDS / 2) {
 				$this->refreshTokens($token['oauth_token'], $token['oauth_token_secret']);
 			}
 
-		} else if (isset($_GET['oauth_token']) && isset($_GET['oauth_verifier'])) {
-			$return = $this->refreshTokens($_GET['oauth_token'], $_GET['oauth_verifier']);
-		} else {
-			$return = [
-				'status' => 'request',
-				'redirect' => $this->getRequestToken(),
+			return [
+				'status' => 'ok',
+				'token' => $token,
 			];
 		}
 
-		return $return;
+		if (isset($_GET['oauth_token']) && isset($_GET['oauth_verifier'])) {
+			return $this->refreshTokens($_GET['oauth_token'], $_GET['oauth_verifier']);
+		}
+
+		return [
+			'status' => 'request',
+			'redirect' => $this->getRequestToken(),
+		];
+	}
+
+	/**
+	 * Clear the user token
+	 *
+	 * @return     boolean
+	 */
+	public function clearToken(){
+		return $this->tokenStorage('clear');
 	}
 
 	public function api($endpoint, $method = 'get', $params = [], $hasAuth = true)
